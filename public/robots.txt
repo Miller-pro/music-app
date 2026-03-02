@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://audioverse.app/sitemap.xml
