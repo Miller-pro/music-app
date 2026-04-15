@@ -11,6 +11,8 @@ import Library from './pages/Library';
 import Downloads from './pages/Downloads';
 import AdvertiserDemos from './pages/AdvertiserDemos';
 import Publishers from './pages/Publishers';
+import Radio from './pages/Radio';
+import Developers from './pages/Developers';
 import { useApp } from './context/AppContext';
 
 export default function App() {
@@ -35,10 +37,12 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/browse" element={<Browse />} />
+            <Route path="/radio" element={<Radio />} />
             <Route path="/library" element={<Library />} />
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/advertisers" element={<AdvertiserDemos />} />
             <Route path="/publishers" element={<Publishers />} />
+            <Route path="/developers" element={<Developers />} />
           </Routes>
         </main>
       </div>

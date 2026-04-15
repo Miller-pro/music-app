@@ -6,7 +6,7 @@ import { useApp } from '../../context/AppContext';
 import { getFromStorage, setToStorage } from '../../utils/helpers';
 import {
   HomeIcon, BrowseIcon, LibraryIcon, DownloadIcon,
-  CloseIcon, AddIcon, HeartIcon,
+  CloseIcon, AddIcon, HeartIcon, RadioIcon,
 } from '../UI/Icons';
 import CreatePlaylistModal from './CreatePlaylistModal';
 
@@ -29,6 +29,7 @@ function PublisherIcon({ className = 'w-6 h-6' }) {
 const navItems = [
   { to: '/', icon: HomeIcon, label: 'Home' },
   { to: '/browse', icon: BrowseIcon, label: 'Browse' },
+  { to: '/radio', icon: RadioIcon, label: 'Radio' },
   { to: '/library', icon: LibraryIcon, label: 'Library' },
   { to: '/downloads', icon: DownloadIcon, label: 'Downloads' },
   { to: '/advertisers', icon: AdvertiseIcon, label: 'Advertisers' },

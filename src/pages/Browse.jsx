@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import musicService from '../services/musicService';
 import config from '../config/config';
 import PlaylistCard from '../components/UI/PlaylistCard';
 import TrackCard from '../components/UI/TrackCard';
+import RadioStationCard from '../components/UI/RadioStationCard';
 import BannerAd from '../components/Ads/BannerAd';
 
 export default function Browse() {
@@ -14,6 +15,7 @@ export default function Browse() {
   const sponsored = useMemo(() => musicService.getSponsoredPlaylists(), []);
   const trending = useMemo(() => musicService.getTrendingTracks(12), []);
   const mostDownloaded = useMemo(() => musicService.getMostDownloaded(12), []);
+  const topRadio = useMemo(() => musicService.getTopRadioStations(6), []);
 
   const useCaseTracks = useMemo(() => {
     if (!useCaseParam) return null;
@@ -88,6 +90,32 @@ export default function Browse() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {sponsored.map((pl, i) => (
                   <PlaylistCard key={pl.id} playlist={pl} index={i} sponsored />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Live Radio Preview */}
+          {topRadio.length > 0 && (
+            <section className="px-4 lg:px-6 mb-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-display text-lg font-bold">Live Radio</h2>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-[9px] font-bold text-red-400 uppercase tracking-wider">Live</span>
+                  </span>
+                </div>
+                <Link
+                  to="/radio"
+                  className="text-sm text-primary-400 hover:text-primary-300 transition-colors"
+                >
+                  See all
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {topRadio.map((station, i) => (
+                  <RadioStationCard key={station.id} station={station} stationList={topRadio} index={i} />
                 ))}
               </div>
             </section>

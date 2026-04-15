@@ -46,6 +46,17 @@ const config = {
     searchDebounceMs: 300,
   },
 
+  // ─── Radio Genres ─────────────────────────────────
+  radioGenres: [
+    { id: 'jazz', name: 'Jazz', icon: '\uD83C\uDFB7' },
+    { id: 'classical', name: 'Classical', icon: '\uD83C\uDFBB' },
+    { id: 'blues', name: 'Blues', icon: '\uD83C\uDFB5' },
+    { id: 'ambient', name: 'Ambient', icon: '\uD83C\uDF0A' },
+    { id: 'world', name: 'World', icon: '\uD83C\uDF0D' },
+    { id: 'folk', name: 'Folk', icon: '\uD83E\uDE95' },
+    { id: 'electronic', name: 'Electronic', icon: '\uD83C\uDFB9' },
+  ],
+
   // ─── Categories ────────────────────────────────────
   genres: [
     { id: 'classical', name: 'Classical', icon: '🎻' },

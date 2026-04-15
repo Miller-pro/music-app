@@ -60,12 +60,14 @@ export function AppProvider({ children }) {
     setTimeout(() => setToast(null), 3000);
   }, []);
 
-  // Play a track
+  // Play a track or radio station
   const playTrack = useCallback((track, trackList = null) => {
     if (!track) return;
 
-    // Check pre-roll ads
-    if (adService.shouldShowPreRoll()) {
+    const isRadio = track.type === 'radio' || track.isLive;
+
+    // Check pre-roll ads (skip for radio)
+    if (!isRadio && adService.shouldShowPreRoll()) {
       pendingTrackRef.current = { track, trackList };
       setShowPreRoll(true);
       return;
@@ -75,18 +77,20 @@ export function AppProvider({ children }) {
     audio.loadTrack(track.url);
     setTimeout(() => audio.play(), 100);
 
-    // Update queue if new list
-    if (trackList) {
+    // Update queue if new list (not for radio)
+    if (trackList && !isRadio) {
       const idx = trackList.findIndex(t => t.id === track.id);
       setQueue(trackList);
       setQueueIndex(idx >= 0 ? idx : 0);
     }
 
-    // Add to history
-    setHistory(prev => {
-      const filtered = prev.filter(h => h.id !== track.id);
-      return [{ ...track, playedAt: new Date().toISOString() }, ...filtered];
-    });
+    // Add to history (not for radio)
+    if (!isRadio) {
+      setHistory(prev => {
+        const filtered = prev.filter(h => h.id !== track.id);
+        return [{ ...track, playedAt: new Date().toISOString() }, ...filtered];
+      });
+    }
   }, [audio]);
 
   // Pre-roll ad completed

@@ -6,6 +6,7 @@ class MusicService {
     this.tracks = catalog.tracks;
     this.playlists = catalog.playlists;
     this.sponsoredPlaylists = catalog.sponsoredPlaylists || [];
+    this.radio = catalog.radio || [];
   }
 
   getAllTracks() {
@@ -151,6 +152,52 @@ class MusicService {
 
   getMoods() {
     return [...new Set(this.tracks.map(t => t.mood))];
+  }
+
+  // ─── Radio ──────────────────────────────────────────
+
+  getRadioStations() {
+    return this.radio;
+  }
+
+  getRadioStationById(id) {
+    return this.radio.find(s => s.id === id) || null;
+  }
+
+  getRadioByGenre(genre) {
+    if (!genre || genre === 'all') return this.radio;
+    return this.radio.filter(s => s.genre === genre);
+  }
+
+  getRadioByCountry(countryCode) {
+    if (!countryCode || countryCode === 'all') return this.radio;
+    return this.radio.filter(s => s.countryCode === countryCode);
+  }
+
+  filterRadioStations({ genre, country, search }) {
+    let results = [...this.radio];
+
+    if (genre && genre !== 'all') {
+      results = results.filter(s => s.genre === genre);
+    }
+    if (country && country !== 'all') {
+      results = results.filter(s => s.countryCode === country);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      results = results.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.genre.toLowerCase().includes(q) ||
+        s.country?.toLowerCase().includes(q) ||
+        s.tags?.toLowerCase().includes(q)
+      );
+    }
+
+    return results;
+  }
+
+  getTopRadioStations(limit = 12) {
+    return [...this.radio].sort((a, b) => b.votes - a.votes).slice(0, limit);
   }
 }
 

@@ -33,7 +33,13 @@
       "Bash(start:*)",
       "WebFetch(domain:archive.org)",
       "Bash(rm:*)",
-      "Bash(gh repo:*)"
+      "Bash(gh repo:*)",
+      "Bash(gh auth:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(export:*)",
+      "Bash(node:*)",
+      "Bash(npx vite:*)"
     ]
   }
 }

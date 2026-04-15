@@ -195,6 +195,22 @@ export function FilterIcon({ className = 'w-5 h-5' }) {
   );
 }
 
+export function RadioIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.49-1.57-1.24-1.85L12 2 3.24 6.15zM12 4.53l6.03 2.47H5.97L12 4.53zM4 20V8h16v12H4zm4.5-5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm0-2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zM15 17h2V9h-2v8zm-3 0h2V9h-2v8z" />
+    </svg>
+  );
+}
+
+export function StopIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6 6h12v12H6z" />
+    </svg>
+  );
+}
+
 export function CopyrightFreeIcon({ className = 'w-4 h-4' }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
