@@ -39,7 +39,19 @@
       "Bash(powershell.exe:*)",
       "Bash(export:*)",
       "Bash(node:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(npx tsc *)",
+      "Bash(npm view *)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder SUPABASE_SERVICE_ROLE_KEY=placeholder NEXT_PUBLIC_APP_URL=http://localhost:3001 npx next build)",
+      "Bash(curl -s \"http://localhost:3001/dashboard\")",
+      "Bash(curl -s \"http://localhost:3001/dashboard/welcome\")",
+      "Bash(curl -s -H \"RSC: 1\" -H \"Next-Router-State-Tree: %5B%22%22%2C%7B%22children%22%3A%5B%22dashboard%22%2C%7B%22children%22%3A%5B%22__PAGE__%22%2C%7B%7D%5D%7D%5D%7D%5D\" \"http://localhost:3001/dashboard\")",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} loc=%{redirect_url}\\\\n\" -H \"Accept: text/html\" -H \"Next-Router-Prefetch: 1\" \"http://localhost:3001/dashboard\")",
+      "Bash(taskkill //FI \"IMAGENAME eq node.exe\" //F)",
+      "Bash(curl *)",
+      "Bash(python3 -c ' *)",
+      "Bash(echo \"started pid $!\")",
+      "Bash(taskkill //IM node.exe //F)"
     ]
   }
 }

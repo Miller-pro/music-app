@@ -120,9 +120,10 @@ function MockMusicPlayer({ adState, audio }) {
 }
 
 export default function StandardAudioDemo() {
-  const audio = useAdAudio(AD.script, 15, {
+  const audio = useAdAudio(AD.script, AD.duration, {
     voice: AD.voice,
     musicStyle: AD.music.style,
+    audioSrc: AD.audioSrc,
   });
   const [canSkip, setCanSkip] = useState(false);
   const [adState, setAdState] = useState('waiting');

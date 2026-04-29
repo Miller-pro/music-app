@@ -22,13 +22,17 @@ import FinalCTA from '../components/Developer/FinalCTA';
 export default function Developers() {
   const setupRef = useRef(null);
 
-  const scrollToSetup = () => {
-    setupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Publisher signup lives in the sidecar Next.js app (audioverse-publishers/).
+  // VITE_PUBLISHER_URL points at it — localhost:3001 in dev,
+  // https://publishers.audioverse.com in prod.
+  const publisherUrl = import.meta.env.VITE_PUBLISHER_URL || 'http://localhost:3001';
+  const goToSignup = () => {
+    window.location.href = `${publisherUrl}/auth/signup`;
   };
 
   return (
     <div className="pb-12">
-      <Hero onGetStarted={scrollToSetup} />
+      <Hero onGetStarted={goToSignup} />
       <RevenueCalculator />
       <LiveCounter />
       <ValueBreakdown />
@@ -47,13 +51,13 @@ export default function Developers() {
       <LicenseStatus />
       <Roadmap />
       <Infrastructure />
-      <WhiteGlove onGetStarted={scrollToSetup} />
-      <FinalCTA onGetStarted={scrollToSetup} />
+      <WhiteGlove onGetStarted={goToSignup} />
+      <FinalCTA onGetStarted={goToSignup} />
 
       {/* Sticky mobile CTA */}
       <div className="fixed bottom-0 left-0 right-0 lg:ml-[72px] p-3 bg-[#1A1A2E]/95 backdrop-blur-sm border-t border-white/5 md:hidden z-40">
         <button
-          onClick={scrollToSetup}
+          onClick={goToSignup}
           className="w-full bg-[#FF6B35] hover:bg-[#e55a28] text-white font-bold py-3 rounded-xl text-sm transition-all"
         >
           Start Free Setup — 15 Minutes

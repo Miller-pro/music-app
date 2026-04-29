@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import config from '../../config/config';
 import { useApp } from '../../context/AppContext';
-import { getFromStorage, setToStorage } from '../../utils/helpers';
 import {
   HomeIcon, BrowseIcon, LibraryIcon, DownloadIcon,
   CloseIcon, AddIcon, HeartIcon, RadioIcon,
@@ -36,14 +35,6 @@ const navItems = [
   { to: '/publishers', icon: PublisherIcon, label: 'Publishers' },
 ];
 
-function CollapseIcon({ className = 'w-5 h-5' }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-    </svg>
-  );
-}
-
 function PlaylistIcon({ className = 'w-5 h-5' }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -54,19 +45,12 @@ function PlaylistIcon({ className = 'w-5 h-5' }) {
 
 export default function Sidebar({ isOpen, onClose }) {
   const { playlists, likedTracks } = useApp();
-  const [collapsed, setCollapsed] = useState(
-    () => getFromStorage('audioverse_sidebar_collapsed', true)
-  );
   const [hovered, setHovered] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
-    setToStorage('audioverse_sidebar_collapsed', collapsed);
-  }, [collapsed]);
-
-  // On desktop: collapsed = icons only, expanded on hover or pinned
-  // On mobile: hidden by default, full-width slide-in via isOpen
-  const expanded = !collapsed || hovered;
+  // Desktop: collapsed by default (icons only), expanded only while hovered.
+  // Mobile: full-width slide-in driven by isOpen — always show labels there.
+  const expanded = hovered || isOpen;
   const sidebarW = expanded ? 240 : 72;
 
   return (
@@ -197,7 +181,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
           {!expanded && (
             <button
-              onClick={() => { setCollapsed(false); setShowCreateModal(true); }}
+              onClick={() => setShowCreateModal(true)}
               title="Create playlist"
               className="flex items-center justify-center w-full py-2.5 text-gray-400 hover:text-white hover:bg-white/[0.06] rounded-md transition-all mb-0.5"
             >
@@ -253,24 +237,6 @@ export default function Sidebar({ isOpen, onClose }) {
           )}
         </nav>
 
-        {/* ── Footer ──────────────────────────── */}
-        <div className="shrink-0 border-t border-white/[0.06]">
-          {/* Collapse toggle (desktop only) */}
-          <button
-            onClick={() => setCollapsed(prev => !prev)}
-            className={`hidden lg:flex items-center gap-3 w-full text-sm text-gray-500 hover:text-white hover:bg-white/[0.06] transition-all duration-150
-              ${expanded ? 'px-5 py-3' : 'px-0 py-3 justify-center'}`}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <motion.div
-              animate={{ rotate: collapsed ? 0 : 180 }}
-              transition={{ duration: 0.2 }}
-            >
-              <CollapseIcon className="w-5 h-5 shrink-0" />
-            </motion.div>
-            {expanded && <span className="text-xs">Collapse</span>}
-          </button>
-        </div>
       </aside>
 
       {/* Create playlist modal */}

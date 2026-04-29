@@ -9,16 +9,17 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 export const ADS = {
   podwave: {
     id: 'podwave',
-    brand: 'Podwave',
-    url: 'Podwave.com',
-    category: 'Podcast Hosting',
-    script: "Yo! Got a podcast idea? Stop overthinking it. Podwave lets you record, edit, and publish, in literally 10 minutes. Seriously. Try it free, no credit card needed. Podwave dot com. Let's go!",
-    voice: { type: 'male', label: 'Young, energetic male', pitch: 1.1, rate: 1.0 },
+    brand: 'Mediaverse',
+    url: 'Mediaverse.com',
+    category: 'Audio Advertising',
+    script: "Audio advertising? It is booming. Want your brand in on it? Mediaverse makes audio ads that actually work.",
+    audioSrc: '/ads/mediaverse-10s.mp3',
+    voice: { type: 'male', label: 'Energetic, social-media creator', pitch: 1.0, rate: 1.0 },
     music: { style: 'upbeat', label: 'Upbeat background' },
     color: '#FF6B35',
     accentColor: '#FF8C61',
     format: 'MP3 128kbps',
-    duration: 15,
+    duration: 10,
   },
   designflow: {
     id: 'designflow',
@@ -276,7 +277,7 @@ function createBackgroundMusic(style = 'upbeat', durationSec = 15) {
 // ═══════════════════════════════════════════════════════════════
 
 export default function useAdAudio(script, durationSec = 15, options = {}) {
-  const { voice = {}, musicStyle = null } = options;
+  const { voice = {}, musicStyle = null, audioSrc = null } = options;
   const voicePitch = voice.pitch ?? 1.1;
   const voiceRate = voice.rate ?? 0.95;
 
@@ -291,9 +292,14 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
   const musicRef = useRef(null);
   const keepAliveRef = useRef(null);
   const voiceOverrideRef = useRef(null);
+  const audioElRef = useRef(null);
 
-  // ── Load voices (async on Chrome) ────────────────────────
+  // ── Load TTS voices (only used when no audioSrc) ─────────
   useEffect(() => {
+    if (audioSrc) {
+      setSelectedVoiceName('ElevenLabs (Liam)');
+      return;
+    }
     function update() {
       const ranked = getEnglishVoicesRanked();
       if (ranked.length > 0 && !selectedVoiceName) {
@@ -303,11 +309,18 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
     update();
     window.speechSynthesis?.addEventListener('voiceschanged', update);
     return () => window.speechSynthesis?.removeEventListener('voiceschanged', update);
-  }, []);
+  }, [audioSrc]);
 
   // ── Cleanup ──────────────────────────────────────────────
   const stopAll = useCallback(() => {
     try { window.speechSynthesis?.cancel(); } catch {}
+    if (audioElRef.current) {
+      try {
+        audioElRef.current.pause();
+        audioElRef.current.currentTime = 0;
+      } catch {}
+      audioElRef.current = null;
+    }
     if (musicRef.current) {
       musicRef.current.stop();
       musicRef.current = null;
@@ -335,7 +348,18 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
     rafRef.current = requestAnimationFrame(tick);
   }, [durationSec, stopAll]);
 
-  // ── Speak with best available voice ──────────────────────
+  // ── Play prerendered MP3 ─────────────────────────────────
+  const playAudioFile = useCallback((src) => {
+    try {
+      const el = new Audio(src);
+      el.preload = 'auto';
+      el.volume = 1.0;
+      audioElRef.current = el;
+      el.play().catch(() => { /* autoplay block — UI play button already required user gesture */ });
+    } catch { /* unsupported — falls through to silent visual */ }
+  }, []);
+
+  // ── Speak with best available voice (TTS fallback) ───────
   const speak = useCallback((text) => {
     try {
       if (!window.speechSynthesis) return;
@@ -346,7 +370,6 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
       u.pitch = voicePitch;
       u.volume = 1.0;
 
-      // Pick voice: user override > auto-ranked best
       const voices = getEnglishVoicesRanked();
       let picked = null;
 
@@ -355,7 +378,6 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
       }
 
       if (!picked && voices.length > 0) {
-        // Auto-select: prefer voices matching the ad's gender
         const isFemale = voice.type === 'female';
         const genderHints = isFemale
           ? ['Female', 'Zira', 'Samantha', 'Karen', 'Victoria', 'Moira', 'Tessa']
@@ -375,7 +397,6 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
 
       window.speechSynthesis.speak(u);
 
-      // Chrome TTS keepalive — prevents the ~15s silence bug
       keepAliveRef.current = setInterval(() => {
         if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
           window.speechSynthesis.pause();
@@ -385,8 +406,9 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
     } catch { /* TTS not available — visual-only mode */ }
   }, [voicePitch, voiceRate, voice.type]);
 
-  // ── Cycle through available voices ───────────────────────
+  // ── Cycle through available voices (TTS only) ────────────
   const cycleVoice = useCallback(() => {
+    if (audioSrc) return;
     const voices = getEnglishVoicesRanked();
     if (voices.length < 2) return;
 
@@ -397,7 +419,7 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
 
     voiceOverrideRef.current = next.name;
     setSelectedVoiceName(next.name);
-  }, [selectedVoiceName]);
+  }, [selectedVoiceName, audioSrc]);
 
   // ── Play ─────────────────────────────────────────────────
   const play = useCallback(() => {
@@ -410,13 +432,17 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
     }
 
     // Small delay so the music bed establishes first
-    setTimeout(() => speak(script), 350);
+    if (audioSrc) {
+      setTimeout(() => playAudioFile(audioSrc), 350);
+    } else {
+      setTimeout(() => speak(script), 350);
+    }
 
     setIsPlaying(true);
     setCurrentTime(0);
     setIsComplete(false);
     rafRef.current = requestAnimationFrame(tick);
-  }, [script, durationSec, musicStyle, tick, stopAll, speak]);
+  }, [script, durationSec, musicStyle, audioSrc, tick, stopAll, speak, playAudioFile]);
 
   // ── Pause ────────────────────────────────────────────────
   const pause = useCallback(() => {
@@ -427,6 +453,7 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
     rafRef.current = null;
     if (keepAliveRef.current) clearInterval(keepAliveRef.current);
     keepAliveRef.current = null;
+    try { audioElRef.current?.pause(); } catch {}
     try { window.speechSynthesis?.pause(); } catch {}
     setIsPlaying(false);
   }, []);
@@ -434,6 +461,7 @@ export default function useAdAudio(script, durationSec = 15, options = {}) {
   // ── Resume ───────────────────────────────────────────────
   const resume = useCallback(() => {
     startRef.current = Date.now();
+    try { audioElRef.current?.play(); } catch {}
     try { window.speechSynthesis?.resume(); } catch {}
     setIsPlaying(true);
     rafRef.current = requestAnimationFrame(tick);
