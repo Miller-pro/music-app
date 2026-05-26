@@ -1,1 +1,11 @@
-{"buildCommand":"npm run build --prefix audioverse-publishers","outputDirectory":"audioverse-publishers/.next","framework":"nextjs"} 
+{
+  "buildCommand": "npm run build --prefix audioverse-publishers",
+  "outputDirectory": "audioverse-publishers/.next",
+  "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/"
+    }
+  ]
+}
