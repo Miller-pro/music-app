@@ -132,7 +132,7 @@ export function TermsStep() {
           checked={draft.data_consent}
           onChange={(v) => patch({ data_consent: v })}
         >
-          I consent to processing my data to participate in AudioVerse's 60/40 revenue sharing.
+          I'm ready to start earning! AudioVerse can process my data for revenue sharing.
         </Consent>
       </div>
 

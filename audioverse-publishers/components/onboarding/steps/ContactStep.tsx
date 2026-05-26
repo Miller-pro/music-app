@@ -104,7 +104,7 @@ export function ContactStep() {
       });
       const json = (await res.json()) as { verified?: boolean; error?: string };
       if (json.verified) {
-        patch({ phone_verified: true });
+        patch({ phone_verified: true, phone_skipped: false });
         setVerifyStatus("idle");
       } else {
         setVerifyStatus("error");
@@ -116,7 +116,7 @@ export function ContactStep() {
     }
   };
 
-  const handleNext = () => {
+  const validateName = () => {
     const parsed = contactSchema.safeParse({
       name: draft.name ?? "",
       company: draft.company ?? "",
@@ -130,9 +130,22 @@ export function ContactStep() {
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
-      return;
+      return false;
     }
     setErrors({});
+    return true;
+  };
+
+  const handleNext = () => {
+    if (!validateName()) return;
+    // Phone provided but not verified → treat as skipped for progress tracking
+    patch({ phone_skipped: !!draft.phone && !draft.phone_verified });
+    next();
+  };
+
+  const handleSkip = () => {
+    if (!validateName()) return;
+    patch({ phone_skipped: true, phone_verified: false });
     next();
   };
 
@@ -165,18 +178,22 @@ export function ContactStep() {
           error={errors.company}
         />
         <div>
-          <label className="av-label">Phone number</label>
+          <label className="av-label">Phone number (optional)</label>
           <PhoneInput
             value={draft.phone ?? ""}
             onChange={(phone) => {
-              patch({ phone, phone_verified: false });
+              patch({ phone, phone_verified: false, phone_skipped: false });
               if (errors.phone) setErrors((p) => ({ ...p, phone: undefined }));
             }}
             invalid={!!errors.phone}
           />
           {errors.phone ? (
             <p className="mt-1.5 text-sm text-status-suspended">{errors.phone}</p>
-          ) : null}
+          ) : (
+            <p className="mt-1.5 text-xs text-white/40">
+              Leave blank to skip — you can add and verify a phone later from your dashboard.
+            </p>
+          )}
         </div>
 
         {draft.phone_verified ? (
@@ -186,7 +203,7 @@ export function ContactStep() {
           >
             ✓ Phone verified
           </div>
-        ) : (
+        ) : draft.phone ? (
           <div className="rounded-xl border border-white/10 bg-bg-elevated p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -251,10 +268,23 @@ export function ContactStep() {
               </div>
             ) : null}
           </div>
-        )}
+        ) : null}
       </div>
 
-      <StepNavigation onNext={handleNext} nextDisabled={!draft.phone_verified} />
+      <StepNavigation
+        onNext={handleNext}
+        secondaryAction={
+          draft.phone && !draft.phone_verified ? (
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="av-btn-secondary sm:w-auto"
+            >
+              Skip for now
+            </button>
+          ) : null
+        }
+      />
     </div>
   );
 }

@@ -97,10 +97,8 @@ export const phoneField = z
 export const contactSchema = z.object({
   name: z.string().trim().min(1, "Required").max(120),
   company: z.string().trim().max(120).optional().or(z.literal("")),
-  phone: phoneField,
-  phone_verified: z.literal(true, {
-    errorMap: () => ({ message: "Please verify your phone number" }),
-  }),
+  phone: phoneField.optional().or(z.literal("")),
+  phone_verified: z.boolean().optional(),
 });
 
 export const termsSchema = z.object({

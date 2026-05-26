@@ -1,184 +1,135 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/middleware/auth";
-import { StatusBadge } from "@/components/dashboard/StatusBadge";
-import { relativeTime } from "@/lib/utils/relative-time";
-import type { PublisherRow, PublisherStatus } from "@/lib/supabase/types";
+import { Activity, CheckCircle2, Clock, DollarSign, ShieldCheck, TrendingUp, Users } from "lucide-react";
+import { StatsCard } from "@/components/admin/StatsCard";
+import { ActionItems } from "@/components/admin/ActionItems";
+import { QuickActions } from "@/components/admin/QuickActions";
+import { RevenueCard } from "@/components/admin/RevenueCard";
+import {
+  getActionItems,
+  getDashboardStats,
+  getMonthOverview,
+} from "@/lib/db/admin-queries";
 
-export const metadata: Metadata = { title: "Admin — AudioVerse Publishers" };
+export const metadata: Metadata = { title: "Command Center — AudioVerse Admin" };
+export const dynamic = "force-dynamic";
 
-const STATUS_OPTIONS: (PublisherStatus | "all")[] = [
-  "all",
-  "incomplete",
-  "pending",
-  "active",
-  "suspended",
-  "rejected",
-];
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: { status?: string; q?: string };
-}) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
-  if (!isAdminEmail(user.email)) redirect("/dashboard");
+function formatPercent(n: number): string {
+  return `${Math.round(n * 100)}%`;
+}
 
-  const admin = createAdminClient();
+function formatCompact(n: number): string {
+  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+}
 
-  const statusFilter = (STATUS_OPTIONS as string[]).includes(searchParams.status ?? "")
-    ? (searchParams.status as PublisherStatus | "all")
-    : "all";
-  const q = (searchParams.q ?? "").trim();
-
-  let query = admin
-    .from("publishers")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(100);
-  if (statusFilter !== "all") query = query.eq("status", statusFilter);
-  if (q) query = query.or(`email.ilike.%${q}%,domain.ilike.%${q}%,bundle_id.ilike.%${q}%`);
-
-  const { data } = await query;
-  const publishers = (data ?? []) as PublisherRow[];
-
-  // Quick KPIs — separate head-only counts so we don't pull full rows.
-  const [total, activeThisWeek, pendingCount, failedCount] = await Promise.all([
-    admin.from("publishers").select("id", { count: "exact", head: true }),
-    admin
-      .from("publishers")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "active")
-      .gte("updated_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-    admin.from("publishers").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    admin
-      .from("verification_attempts")
-      .select("id", { count: "exact", head: true })
-      .eq("success", false)
-      .gte("attempted_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
+export default async function AdminHomePage() {
+  const [stats, actionItems, monthly] = await Promise.all([
+    getDashboardStats(),
+    getActionItems(5),
+    getMonthOverview(),
   ]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
-      <header className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">Admin</h1>
-          <p className="text-sm text-white/50">{user.email}</p>
-        </div>
-        <Link href="/dashboard" className="av-btn-secondary">
-          Back to dashboard
-        </Link>
+    <div className="mx-auto max-w-7xl space-y-8">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+          AudioVerse Admin Panel
+        </h1>
+        <p className="text-sm text-white/50">
+          Command center for publishers, verification, and revenue.
+        </p>
       </header>
 
-      <section className="mb-6 grid gap-3 sm:grid-cols-4">
-        <Kpi label="Total publishers" value={total.count ?? 0} />
-        <Kpi label="Active (last 7d)" value={activeThisWeek.count ?? 0} />
-        <Kpi label="Pending review" value={pendingCount.count ?? 0} />
-        <Kpi label="Failed checks (24h)" value={failedCount.count ?? 0} />
-      </section>
-
-      <section className="av-card">
-        <form className="mb-4 flex flex-wrap items-end gap-3" action="/admin">
-          <div className="flex-1 min-w-[200px]">
-            <label className="av-label" htmlFor="q">
-              Search
-            </label>
-            <input
-              id="q"
-              name="q"
-              defaultValue={q}
-              placeholder="email, domain, or bundle id"
-              className="av-input"
-            />
-          </div>
-          <div>
-            <label className="av-label" htmlFor="status">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={statusFilter}
-              className="av-input"
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button type="submit" className="av-btn-primary">
-            Apply
-          </button>
-        </form>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-                <th className="py-2 pr-3">Status</th>
-                <th className="py-2 pr-3">Publisher ID</th>
-                <th className="py-2 pr-3">Email</th>
-                <th className="py-2 pr-3">Target</th>
-                <th className="py-2 pr-3">Users</th>
-                <th className="py-2 pr-3">Flags</th>
-                <th className="py-2 pr-3">Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {publishers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-6 text-center text-white/50">
-                    No publishers match.
-                  </td>
-                </tr>
-              ) : (
-                publishers.map((p) => (
-                  <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.03]">
-                    <td className="py-2.5 pr-3">
-                      <StatusBadge status={p.status} size="sm" />
-                    </td>
-                    <td className="py-2.5 pr-3 font-mono text-primary">{p.publisher_id}</td>
-                    <td className="py-2.5 pr-3 text-white/80">{p.email}</td>
-                    <td className="py-2.5 pr-3 font-mono text-white/70">
-                      {p.domain || p.bundle_id || "—"}
-                    </td>
-                    <td className="py-2.5 pr-3 text-white/70">
-                      {p.monthly_users?.toLocaleString() ?? "—"}
-                    </td>
-                    <td className="py-2.5 pr-3">
-                      {p.fraud_flags?.length ? (
-                        <span className="rounded bg-status-pending/10 px-1.5 py-0.5 text-xs text-status-pending">
-                          {p.fraud_flags.length}
-                        </span>
-                      ) : (
-                        <span className="text-white/30">—</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 pr-3 text-white/50">{relativeTime(p.created_at)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <section>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">
+          At a glance
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            icon={Users}
+            label="Active publishers"
+            value={stats.activePublishers}
+            trend={stats.activePublishersTrend}
+            color="primary"
+          />
+          <StatsCard
+            icon={Clock}
+            label="Pending approval"
+            value={stats.pendingApproval}
+            color={stats.pendingApproval > 0 ? "danger" : "success"}
+            hint={stats.pendingApproval > 0 ? "Needs review" : "All clear"}
+          />
+          <StatsCard
+            icon={DollarSign}
+            label="This month revenue"
+            value={formatCurrency(stats.monthRevenue)}
+            color="info"
+            hint="Estimated"
+          />
+          <StatsCard
+            icon={ShieldCheck}
+            label="Verification rate"
+            value={formatPercent(stats.verificationRate)}
+            color="success"
+            hint="Domain + ads.txt"
+          />
         </div>
       </section>
-    </main>
-  );
-}
 
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-bg-elevated p-4">
-      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-white">{value.toLocaleString()}</p>
+      <section className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-white/40">
+              Action items
+            </h2>
+            <span className="text-xs text-white/40">{actionItems.length} pending</span>
+          </div>
+          <ActionItems items={actionItems} />
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">
+            Quick commands
+          </h2>
+          <div className="grid gap-3">
+            <QuickActions />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">
+          This month overview
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatsCard icon={DollarSign} label="Revenue" value={formatCurrency(monthly.revenue)} color="primary" />
+          <StatsCard icon={Activity} label="Plays" value={formatCompact(monthly.plays)} color="info" />
+          <StatsCard
+            icon={TrendingUp}
+            label="New publishers"
+            value={monthly.newPublishers}
+            color="success"
+          />
+          <StatsCard
+            icon={CheckCircle2}
+            label="Conversion rate"
+            value={formatPercent(monthly.conversionRate)}
+            color="info"
+            hint="Active / total this month"
+          />
+        </div>
+      </section>
+
+      <section>
+        <RevenueCard
+          revenue={monthly.revenue / 0.6}
+          plays={monthly.plays}
+          share={monthly.revenue}
+        />
+      </section>
     </div>
   );
 }

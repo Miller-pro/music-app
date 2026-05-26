@@ -2,7 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Refreshes the Supabase auth cookie on every request so Server Components
-// and Route Handlers always see a fresh session.
+// and Route Handlers always see a fresh session. Additionally gates
+// /admin/* routes on the configured admin email.
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
 
@@ -28,7 +29,29 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const path = request.nextUrl.pathname;
+  if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
+    const adminEmail = (process.env.ADMIN_EMAIL || "dean@m-innovation-group.com").toLowerCase();
+    const userEmail = user?.email?.toLowerCase() ?? "";
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/login";
+      url.searchParams.set("next", path);
+      return NextResponse.redirect(url);
+    }
+    if (userEmail !== adminEmail) {
+      if (path.startsWith("/api/admin")) {
+        return NextResponse.json({ error: "Forbidden", code: "UNAUTHORIZED" }, { status: 403 });
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
 
   return response;
 }

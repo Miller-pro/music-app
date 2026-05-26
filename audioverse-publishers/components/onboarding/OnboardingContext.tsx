@@ -37,6 +37,7 @@ export interface OnboardingDraft {
   company?: string;
   phone?: string;
   phone_verified: boolean;
+  phone_skipped: boolean;
 
   // Step 6 — terms
   tos_accepted: boolean;
@@ -79,6 +80,7 @@ function emptyDraft(): OnboardingDraft {
     ads_txt_verified: false,
     ads_txt_skipped: false,
     phone_verified: false,
+    phone_skipped: false,
     tos_accepted: false,
     privacy_accepted: false,
     email_consent: false,
