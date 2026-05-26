@@ -14,6 +14,7 @@ import { CheckNowButton } from "@/components/dashboard/CheckNowButton";
 import { findCountry } from "@/lib/utils/country-list";
 import { signOut } from "@/app/auth/actions";
 import type { VerificationAttemptRow } from "@/lib/supabase/types";
+import AudioPlayer from "@/components/player/AudioPlayer";
 
 export const metadata: Metadata = { title: "Dashboard — AudioVerse Publishers" };
 
@@ -190,6 +191,11 @@ export default async function DashboardPage() {
           <h2 className="mb-3 font-semibold text-white">Recent activity</h2>
           <ActivityLog items={activity} />
         </div>
+      </section>
+
+      <section className="mt-6 av-card">
+        <h2 className="mb-4 font-semibold text-white">🎵 Preview Player</h2>
+        <AudioPlayer apiKey={publisher.publisher_id || ''} />
       </section>
     </main>
   );
