@@ -41,7 +41,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
         <nav className="flex h-full flex-col gap-1 p-3">
           {ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            const active = item.exact ? pathname === item.href : (pathname ?? "").startsWith(item.href);
             const isDisabled = !!item.disabled;
             const baseClasses =
               "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors";

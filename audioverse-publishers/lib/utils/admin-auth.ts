@@ -1,22 +1,13 @@
-// Admin authorization helpers. Single source of truth for "is this user an
-// admin." The check is env-driven (ADMIN_EMAIL) so we can rotate the address
-// without a code deploy.
+// Admin authorization helpers for server contexts. The pure email-matching
+// logic (adminEmail/isAdmin) lives in ./admin so it can also be imported from
+// the edge middleware; this module re-exports it and adds requireAdmin, which
+// needs server-only APIs (next/navigation + the supabase server client).
 
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "./admin";
 
-const DEFAULT_ADMIN = "dean@m-innovation-group.com";
-
-export function adminEmail(): string {
-  return (process.env.ADMIN_EMAIL || DEFAULT_ADMIN).toLowerCase();
-}
-
-export function isAdmin(user: Pick<User, "email"> | { email?: string | null } | null | undefined): boolean {
-  const email = user?.email?.toLowerCase();
-  if (!email) return false;
-  return email === adminEmail();
-}
+export { adminEmail, isAdmin } from "./admin";
 
 /**
  * Gate a page or layout on admin status. Redirects unauthenticated users to

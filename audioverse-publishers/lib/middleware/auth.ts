@@ -35,9 +35,3 @@ export async function getPublisher(userId: string): Promise<PublisherRow | null>
     .maybeSingle();
   return (data as PublisherRow | null) ?? null;
 }
-
-export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const configured = (process.env.ADMIN_EMAIL || "dean@audioverse.com").toLowerCase();
-  return email.toLowerCase() === configured;
-}

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAdmin } from "@/lib/utils/admin";
 
 // Refreshes the Supabase auth cookie on every request so Server Components
 // and Route Handlers always see a fresh session. Additionally gates
@@ -35,15 +36,13 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
-    const adminEmail = (process.env.ADMIN_EMAIL || "dean@m-innovation-group.com").toLowerCase();
-    const userEmail = user?.email?.toLowerCase() ?? "";
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("next", path);
       return NextResponse.redirect(url);
     }
-    if (userEmail !== adminEmail) {
+    if (!isAdmin(user)) {
       if (path.startsWith("/api/admin")) {
         return NextResponse.json({ error: "Forbidden", code: "UNAUTHORIZED" }, { status: 403 });
       }

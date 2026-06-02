@@ -24,7 +24,7 @@ const FILTERS: Array<{ value: PublisherFilter; label: string }> = [
 
 export default function AdminPublishersPage() {
   const searchParams = useSearchParams();
-  const initialFocus = searchParams.get("focus");
+  const initialFocus = searchParams?.get("focus") ?? null;
 
   const [filter, setFilter] = useState<PublisherFilter>("all");
   const [search, setSearch] = useState("");

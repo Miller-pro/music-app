@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { getPublisher, isAdminEmail } from "@/lib/middleware/auth";
+import { getPublisher } from "@/lib/middleware/auth";
+import { isAdmin } from "@/lib/utils/admin-auth";
 import { adsTxtLineFor } from "@/lib/utils/publisher-id";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { VerificationLayer, type LayerState } from "@/components/dashboard/VerificationLayer";
@@ -64,7 +65,7 @@ export default async function DashboardPage() {
           <p className="mt-0.5 text-sm text-white/50">{user.email}</p>
         </div>
         <div className="flex items-center gap-2">
-          {isAdminEmail(user.email) ? (
+          {isAdmin(user) ? (
             <Link href="/admin" className="av-btn-secondary">
               Admin
             </Link>
