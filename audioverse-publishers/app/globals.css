@@ -33,3 +33,118 @@ body {
     @apply mb-1.5 block text-sm font-medium text-white/80;
   }
 }
+
+/* ===========================================================================
+   Music-site utilities (migrated from the old Vite app's index.css).
+   These are opt-in classes / keyframes only — no existing publisher or admin
+   component uses them, so they do not change the dashboard/admin appearance.
+   Global element styling (scrollbar, range inputs, fonts) is applied in the
+   (site) layout scope so it stays confined to the public music site.
+   =========================================================================== */
+
+/* Glass effect */
+.glass {
+  background: rgba(22, 33, 62, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #FF6B35, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-purple {
+  box-shadow: 0 0 40px rgba(255, 107, 53, 0.3), 0 0 80px rgba(255, 107, 53, 0.1);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), 0 0 80px rgba(255, 215, 0, 0.1);
+}
+
+/* Skeleton loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Ad demo animations */
+@keyframes waveformBounce {
+  0% { height: 12%; }
+  100% { height: 90%; }
+}
+
+@keyframes bannerFloat {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.03); }
+}
+
+/* Hide scrollbar for tab navigation */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Bid Request JSON viewer (advertiser demos) */
+.bid-json-viewer {
+  counter-reset: json-line;
+}
+.bid-json-line {
+  counter-increment: json-line;
+}
+.bid-line-num {
+  display: inline-block;
+  width: 2rem;
+  text-align: right;
+  margin-right: 0.5rem;
+  color: rgb(55, 65, 81);
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  user-select: none;
+  flex-shrink: 0;
+}
+.bid-line-num::before {
+  content: counter(json-line);
+}
+
+/* Blinking cursor for typing animation */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typing-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 13px;
+  background-color: rgb(255, 107, 53);
+  margin-left: 1px;
+  vertical-align: -2px;
+  animation: cursor-blink 0.9s step-end infinite;
+}

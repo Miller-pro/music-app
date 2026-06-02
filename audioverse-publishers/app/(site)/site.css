@@ -1,0 +1,77 @@
+/* Global element styling for the public music site only. Everything is scoped
+   under `.site-scope` (applied on the (site) layout wrapper) so it never
+   touches the dashboard/admin/auth pages, which keep their default chrome.
+   Migrated from the old Vite app's index.css. */
+
+/* Scrollbar (brand orange) */
+.site-scope ::-webkit-scrollbar {
+  width: 6px;
+}
+.site-scope ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.site-scope ::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 53, 0.3);
+  border-radius: 3px;
+}
+.site-scope ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 53, 0.5);
+}
+
+/* Range inputs (Spotify-style seek/volume sliders) */
+.site-scope input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.site-scope input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.site-scope input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: white;
+  margin-top: -4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.site-scope input[type="range"]:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+.site-scope input[type="range"]:active::-webkit-slider-thumb {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.site-scope input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.site-scope input[type="range"]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Volume slider — always hide native thumb (a custom one is rendered) */
+.site-scope .vol-slider::-webkit-slider-thumb {
+  opacity: 0 !important;
+}
+.site-scope .vol-slider::-moz-range-thumb {
+  opacity: 0 !important;
+}
+
+/* Smooth tap on interactive elements */
+.site-scope button,
+.site-scope a {
+  -webkit-tap-highlight-color: transparent;
+}
