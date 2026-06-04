@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm install --prefix audioverse-publishers",
   "buildCommand": "npm run build --prefix audioverse-publishers",
   "outputDirectory": "audioverse-publishers/.next",
   "framework": "nextjs",
