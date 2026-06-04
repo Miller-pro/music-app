@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import HeroBackdrop from '../UI/HeroBackdrop';
 
 const STATS = [
   { value: '2.4M', label: 'Monthly Active Users' },
@@ -16,37 +17,7 @@ export default function PublisherHero({ onGetStarted }) {
     <>
       <section className="relative overflow-hidden rounded-2xl mx-4 lg:mx-6 mt-4 mb-8">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A2E]/90 via-[#16213E]/80 to-[#FF6B35]/30" />
-        <div className="absolute inset-0 overflow-hidden">
-          {/* Animated grid background */}
-          <div className="absolute inset-0 opacity-10">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute border border-white/20 rounded-lg"
-                style={{
-                  width: 40 + Math.random() * 60,
-                  height: 40 + Math.random() * 60,
-                  left: `${(i * 5) % 100}%`,
-                  top: `${(i * 7) % 100}%`,
-                  animation: `bannerFloat ${4 + i * 0.5}s ease-in-out ${i * 0.3}s infinite alternate`,
-                }}
-              />
-            ))}
-          </div>
-          {/* Waveform decoration */}
-          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-1 h-16 px-4 opacity-20">
-            {[...Array(60)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-accent-400 rounded-t-full flex-1 min-w-[3px]"
-                style={{
-                  height: `${20 + Math.sin(i * 0.3) * 50 + Math.random() * 30}%`,
-                  animation: `waveformBounce ${0.5 + (i % 8) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate`,
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        <HeroBackdrop waveColor="bg-accent-400" />
 
         <div className="relative px-8 py-16 lg:py-20">
           <motion.div
