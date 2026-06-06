@@ -98,6 +98,7 @@ const config = {
     volume: 'audioverse_volume',
     queue: 'audioverse_queue',
     preferences: 'audioverse_preferences',
+    publisherInvite: 'audioverse_publisher_invite_shown',
   },
 
   // ─── Analytics ─────────────────────────────────────

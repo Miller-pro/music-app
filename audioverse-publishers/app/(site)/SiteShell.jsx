@@ -5,6 +5,7 @@ import Sidebar from '@/src/components/Layout/Sidebar';
 import Header from '@/src/components/Layout/Header';
 import PlayerBar from '@/src/components/Player/PlayerBar';
 import PreRollAd from '@/src/components/Ads/PreRollAd';
+import PublisherInviteBanner from '@/src/components/Publishers/PublisherInviteBanner';
 import Toast from '@/src/components/UI/Toast';
 import { useApp } from '@/src/context/AppContext';
 
@@ -37,6 +38,7 @@ export default function SiteShell({ children }) {
       </div>
 
       <PlayerBar />
+      <PublisherInviteBanner />
       <PreRollAd />
       <Toast />
     </div>
