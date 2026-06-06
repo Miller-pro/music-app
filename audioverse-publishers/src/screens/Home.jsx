@@ -47,7 +47,7 @@ function CollectionCard({ collection, index }) {
       transition={{ delay: 0.1 + index * 0.06 }}
     >
       <Link
-        href={`/browse?genre=${collection.genre}`}
+        href={`/library?genre=${collection.genre}`}
         className={`group relative block rounded-xl overflow-hidden bg-gradient-to-br ${GENRE_COLORS[collection.genre] || DEFAULT_GRADIENT} border border-white/[0.06] hover:border-white/[0.12] hover:brightness-110 transition-all duration-300`}
       >
         <div className="p-5 sm:p-6">
