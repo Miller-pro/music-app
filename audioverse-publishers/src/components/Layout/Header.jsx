@@ -1,13 +1,42 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { MenuIcon, SearchIcon } from '../UI/Icons';
+
+// The publisher CTA only appears on the home and publishers pages; everywhere
+// else the header carries just search + the "100% Free" badge.
+const CTA_PATHS = new Set(['/', '/publishers']);
 import { debounce } from '../../utils/helpers';
+
+// Persistent header CTA aimed at publishers (listeners need no account). The
+// small kicker qualifies the audience; the bold line leads with what they get.
+// Brand orange-red (primary, #FF6B35); copy shortens on mobile so it never
+// crowds the search field.
+function PublisherCta() {
+  return (
+    <Link
+      href="/auth/signup"
+      className="inline-flex flex-col justify-center leading-tight px-3 sm:px-4 py-1.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white whitespace-nowrap shadow-lg shadow-primary-500/30 transition-colors"
+    >
+      <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-white/80">
+        For Publishers
+      </span>
+      <span className="text-xs sm:text-sm font-bold flex items-center gap-1">
+        <span className="hidden sm:inline">Add Premium Music</span>
+        <span className="sm:hidden">Add Music</span>
+        <span aria-hidden="true">→</span>
+      </span>
+    </Link>
+  );
+}
 
 export default function Header({ onMenuToggle }) {
   const [query, setQuery] = useState('');
   const router = useRouter();
+  const pathname = usePathname();
+  const showPublisherCta = CTA_PATHS.has(pathname);
 
   const debouncedSearch = useCallback(
     debounce((q) => {
@@ -53,10 +82,12 @@ export default function Header({ onMenuToggle }) {
           </div>
         </form>
 
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <span className="hidden lg:inline-flex items-center px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
             100% Free
           </span>
+
+          {showPublisherCta && <PublisherCta />}
         </div>
       </div>
     </header>

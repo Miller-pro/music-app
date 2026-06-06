@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import NavLink from '../UI/NavLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import config from '../../config/config';
@@ -49,6 +50,10 @@ export default function Sidebar({ isOpen, onClose }) {
   const { playlists, likedTracks } = useApp();
   const [hovered, setHovered] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const pathname = usePathname();
+
+  // Match the header: the publisher CTA shows only on home and /publishers.
+  const showPublisherCta = pathname === '/' || pathname === '/publishers';
 
   // Desktop: collapsed by default (icons only), expanded only while hovered.
   // Mobile: full-width slide-in driven by isOpen — always show labels there.
@@ -238,6 +243,35 @@ export default function Sidebar({ isOpen, onClose }) {
             </>
           )}
         </nav>
+
+        {/* ── Publisher CTA (pinned footer) — home & /publishers only ── */}
+        {showPublisherCta && (
+          <div className="shrink-0 p-2 border-t border-white/[0.06]">
+            {expanded ? (
+              <div className="rounded-xl border border-primary-500/20 bg-primary-500/[0.08] p-3">
+                <p className="text-[11px] text-gray-300 leading-snug mb-2">
+                  Run an audio app or station? Add premium music with AudioVerse.
+                </p>
+                <NavLink
+                  to="/auth/signup"
+                  onClick={onClose}
+                  className="flex items-center justify-center w-full px-3 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-xs font-semibold transition-colors"
+                >
+                  For Publishers
+                </NavLink>
+              </div>
+            ) : (
+              <NavLink
+                to="/auth/signup"
+                onClick={onClose}
+                title="For Publishers"
+                className="flex items-center justify-center py-2.5 rounded-md bg-primary-500/15 text-primary-300 hover:bg-primary-500/25 transition-all"
+              >
+                <PublisherIcon className="w-5 h-5" />
+              </NavLink>
+            )}
+          </div>
+        )}
 
       </aside>
 
