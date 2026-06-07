@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getRequestOrigin } from "@/lib/utils/request-meta";
 
 // OAuth & magic-link callback. Supabase redirects the browser here with a
 // `code` query param; we exchange it for a session cookie and bounce to
@@ -10,7 +11,10 @@ export async function GET(request: Request) {
   const next = url.searchParams.get("next") || "/dashboard";
   const errorDescription = url.searchParams.get("error_description");
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL || url.origin;
+  // Derive our own origin from the request (proxy headers), falling back to the
+  // request URL — never the env var first — so post-exchange redirects stay on
+  // the same host the verifier cookie was set on.
+  const origin = getRequestOrigin(url.origin);
 
   if (errorDescription) {
     return NextResponse.redirect(

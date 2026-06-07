@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signupSchema, loginSchema } from "@/lib/validations/auth";
 import { verifyRecaptchaToken } from "@/lib/utils/recaptcha";
-import { getRequestMeta } from "@/lib/utils/request-meta";
+import { getRequestMeta, getRequestOrigin } from "@/lib/utils/request-meta";
 
 export type AuthActionResult =
   | { ok: true; next: string }
@@ -34,12 +34,16 @@ export async function signUp(formData: {
   // once we have real traffic data.
   const recaptcha = await verifyRecaptchaToken(recaptchaToken, ip);
 
+  // Build the confirmation-link target from the live request origin so the
+  // verifier cookie (set on this host) is present when the link hits /auth/callback.
+  const origin = getRequestOrigin();
+
   const supabase = createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${origin}/auth/callback`,
       data: {
         signup_ip: ip,
         signup_user_agent: userAgent,
@@ -85,11 +89,14 @@ export async function signIn(formData: {
 // Google OAuth
 // ---------------------------------------------------------------------------
 export async function signInWithGoogle(nextPath = "/onboarding"): Promise<void> {
+  // Same-origin callback (see signUp) — keeps the PKCE verifier cookie in scope.
+  const origin = getRequestOrigin();
+
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   });
 
